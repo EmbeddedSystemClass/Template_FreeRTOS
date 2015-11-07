@@ -139,7 +139,7 @@ __weak void SysTick_Handler(void)
   * @retval None
   * @Note   This function is redefined in "main.h" and related to I2C data transmission     
   */
-void I2Cx_EV_IRQHandler(void)
+void I2Cx_1_EV_IRQHandler(void)
 {
   HAL_I2C_EV_IRQHandler(& I2CxHandle);
 }
@@ -150,7 +150,7 @@ void I2Cx_EV_IRQHandler(void)
   * @retval None
   * @Note   This function is redefined in "main.h" and related to I2C error
   */
-void I2Cx_ER_IRQHandler(void)
+void I2Cx_1_ER_IRQHandler(void)
 {
   HAL_I2C_ER_IRQHandler(& I2CxHandle);
 }
