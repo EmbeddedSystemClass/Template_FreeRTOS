@@ -34,9 +34,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-/* Uncomment this line to use the board as master, if not it is used as slave */
-//#define MASTER_BOARD
-#define I2C_ADDRESS        0x3E
+
 #define MASTER_REQ_READ    0x12
 #define MASTER_REQ_WRITE   0x34
 
@@ -117,14 +115,14 @@ int main(void)
   }
 	
 	/*##-1- Configure the I2C peripheral #######################################*/
-  I2CxHandle.Instance             = I2Cx;
+  I2CxHandle.Instance             = I2Cx_1;
   I2CxHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
   I2CxHandle.Init.ClockSpeed      = 400000;
   I2CxHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   I2CxHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
   I2CxHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   I2CxHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-  I2CxHandle.Init.OwnAddress1     = I2C_ADDRESS;
+  I2CxHandle.Init.OwnAddress1     = I2C_1_ADDRESS;
   I2CxHandle.Init.OwnAddress2     = 0;
 	
 	if(HAL_I2C_Init(&I2CxHandle) != HAL_OK)
@@ -160,90 +158,86 @@ int main(void)
   for(;;);
 }
 
-/**
-  * @brief  Toggle LED3 and LED4 thread
-  * @param  thread not used
-  * @retval None
-  */
-void LED_Thread1(void *argument)
-{
-  uint32_t count = 0UL;
-  (void) argument;
+// /**
+  // * @brief  Toggle LED3 and LED4 thread
+  // * @param  thread not used
+  // * @retval None
+  // */
+// void LED_Thread1(void *argument)
+// {
+  // uint32_t count = 0UL;
+  // (void) argument;
   
-  for(;;)
-  {
-    count = xTaskGetTickCount() + 5000;
+  // for(;;)
+  // {
+    // count = xTaskGetTickCount() + 5000;
     
-    /* Toggle LED3 every 200 ms for 5 s */
-    while (count >= xTaskGetTickCount())
-    {
-    //  BSP_LED_Toggle(LED3);
+    // /* Toggle LED3 every 200 ms for 5 s */
+    // while (count >= xTaskGetTickCount())
+    // {
+    // //  BSP_LED_Toggle(LED3);
       
-      vTaskDelay(200);
-    }
+      // vTaskDelay(200);
+    // }
     
-    /* Turn off LED3 */
-  //  BSP_LED_Off(LED3);
+    // /* Turn off LED3 */
+  // //  BSP_LED_Off(LED3);
     
-    /* Suspend Thread 1 */
-    vTaskSuspend(NULL);
+    // /* Suspend Thread 1 */
+    // vTaskSuspend(NULL);
     
-    count = xTaskGetTickCount() + 5000;
+    // count = xTaskGetTickCount() + 5000;
     
-    /* Toggle LED3 every 400 ms for 5 s */
-    while (count >= xTaskGetTickCount())
-    {
-    //  BSP_LED_Toggle(LED3);
+    // /* Toggle LED3 every 400 ms for 5 s */
+    // while (count >= xTaskGetTickCount())
+    // {
+    // //  BSP_LED_Toggle(LED3);
       
-      vTaskDelay(400);
-    }
+      // vTaskDelay(400);
+    // }
     
-    /* Resume Thread 2 */
-    vTaskResume(LEDThread2Handle);
-  }
-}
+    // /* Resume Thread 2 */
+    // vTaskResume(LEDThread2Handle);
+  // }
+// }
 
-/**
-  * @brief  Toggle LED4 thread
-  * @param  argument not used
-  * @retval None
-  */
-void LED_Thread2(void *argument)
-{
-  uint32_t count = 0UL;;
-  (void) argument;
+// /**
+  // * @brief  Toggle LED4 thread
+  // * @param  argument not used
+  // * @retval None
+  // */
+// void LED_Thread2(void *argument)
+// {
+  // uint32_t count = 0UL;;
+  // (void) argument;
   
-  for(;;)
-  {
-    count = xTaskGetTickCount() + 10000;
+  // for(;;)
+  // {
+    // count = xTaskGetTickCount() + 10000;
     
-    /* Toggle LED4 every 500 ms for 10 s */
-    while (count >= xTaskGetTickCount())
-    {
- //     BSP_LED_Toggle(LED4);
+    // /* Toggle LED4 every 500 ms for 10 s */
+    // while (count >= xTaskGetTickCount())
+    // {
+ // //     BSP_LED_Toggle(LED4);
 
-      vTaskDelay(500);
-    }
+      // vTaskDelay(500);
+    // }
     
-    /* Turn off LED4 */
-//    BSP_LED_Off(LED4);
-	/*
-  if(HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000)!= HAL_OK)
-  {
-    Error_Handler();   
-  }
-   */
-    /* Resume Thread 1 */
-    vTaskResume(LEDThread1Handle);
+    // /* Turn off LED4 */
+// //    BSP_LED_Off(LED4);
+	// /*
+  // if(HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000)!= HAL_OK)
+  // {
+    // Error_Handler();   
+  // }
+   // */
+    // /* Resume Thread 1 */
+    // vTaskResume(LEDThread1Handle);
     
-    /* Suspend Thread 2 */
-    vTaskSuspend(NULL);  
-  }
-}
-
-
-
-
+    // /* Suspend Thread 2 */
+    // vTaskSuspend(NULL);  
+  // }
+// }
 
 
 void I2C_Slave_Mode(void *argument)
