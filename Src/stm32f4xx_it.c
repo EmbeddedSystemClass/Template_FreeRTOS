@@ -37,7 +37,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* I2C handler declared in "main.c" file */
-extern I2C_HandleTypeDef I2CxHandle;
+extern I2C_HandleTypeDef I2CxHandle_1;
+extern I2C_HandleTypeDef I2CxHandle_2;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -141,7 +142,7 @@ __weak void SysTick_Handler(void)
   */
 void I2Cx_1_EV_IRQHandler(void)
 {
-  HAL_I2C_EV_IRQHandler(& I2CxHandle);
+  HAL_I2C_EV_IRQHandler(& I2CxHandle_1);
 }
 
 /**
@@ -152,7 +153,29 @@ void I2Cx_1_EV_IRQHandler(void)
   */
 void I2Cx_1_ER_IRQHandler(void)
 {
-  HAL_I2C_ER_IRQHandler(& I2CxHandle);
+  HAL_I2C_ER_IRQHandler(& I2CxHandle_1);
+}
+
+/**
+  * @brief  This function handles I2C event interrupt request.  
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to I2C data transmission     
+  */
+void I2Cx_2_EV_IRQHandler(void)
+{
+  HAL_I2C_EV_IRQHandler(& I2CxHandle_2);
+}
+
+/**
+  * @brief  This function handles I2C error interrupt request.
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to I2C error
+  */
+void I2Cx_2_ER_IRQHandler(void)
+{
+  HAL_I2C_ER_IRQHandler(& I2CxHandle_2);
 }
 
 /**

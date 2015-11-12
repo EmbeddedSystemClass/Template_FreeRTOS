@@ -39,13 +39,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* FreeRTOS */
-xTaskHandle LEDThread1Handle, LEDThread2Handle, I2CThreadHandle;
+xTaskHandle LEDThread1Handle, LEDThread2Handle, I2CThreadHandle_1, I2CThreadHandle_2;
 
 /* UART handler declaration */
 UART_HandleTypeDef UartHandle;
 
 /* I2C handler declaration */
-I2C_HandleTypeDef I2CxHandle;
+I2C_HandleTypeDef I2CxHandle_1;
+I2C_HandleTypeDef I2CxHandle_2;
 
 /* Buffer used for UART and I2c transmission */
 uint8_t aTxBuffer[] = " **** UART_TwoBoards_ComPolling ****  **** UART_TwoBoards_ComPolling ****  **** UART_TwoBoards_ComPolling **** \n";
@@ -58,7 +59,8 @@ uint8_t bTransferRequest = 0;
 /* Private function prototypes -----------------------------------------------*/
 void LED_Thread1(void *argument);
 void LED_Thread2(void *argument);
-void I2C_Slave_Mode(void *argument);
+void I2C_1_Slave_Mode(void *argument);
+void I2C_2_Slave_Mode(void *argument);
 
 static void SystemClock_Config(void);
 static void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
@@ -114,17 +116,34 @@ int main(void)
   }
 	
 	/*##-1- Configure the I2C peripheral #######################################*/
-  I2CxHandle.Instance             = I2Cx_1;
-  I2CxHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-  I2CxHandle.Init.ClockSpeed      = 400000;
-  I2CxHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  I2CxHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
-  I2CxHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  I2CxHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-  I2CxHandle.Init.OwnAddress1     = I2C_1_ADDRESS;
-  I2CxHandle.Init.OwnAddress2     = 0;
+  I2CxHandle_1.Instance             = I2Cx_1;
+  I2CxHandle_1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+  I2CxHandle_1.Init.ClockSpeed      = 400000;
+  I2CxHandle_1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  I2CxHandle_1.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+  I2CxHandle_1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  I2CxHandle_1.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+  I2CxHandle_1.Init.OwnAddress1     = I2C_1_ADDRESS;
+  I2CxHandle_1.Init.OwnAddress2     = 0;
 	
-	if(HAL_I2C_Init(&I2CxHandle) != HAL_OK)
+	if(HAL_I2C_Init(&I2CxHandle_1) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+	
+		/*##-1- Configure the I2C peripheral #######################################*/
+  I2CxHandle_2.Instance             = I2Cx_2;
+  I2CxHandle_2.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+  I2CxHandle_2.Init.ClockSpeed      = 400000;
+  I2CxHandle_2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  I2CxHandle_2.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+  I2CxHandle_2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  I2CxHandle_2.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+  I2CxHandle_2.Init.OwnAddress1     = I2C_2_ADDRESS;
+  I2CxHandle_2.Init.OwnAddress2     = 0;
+	
+	if(HAL_I2C_Init(&I2CxHandle_2) != HAL_OK)
   {
     /* Initialization Error */
     Error_Handler();
@@ -145,9 +164,11 @@ int main(void)
 	//HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000);
 	
 	/* Start thread 3 */
-  xTaskCreate(I2C_Slave_Mode,"I2C Slave", configMINIMAL_STACK_SIZE,
-	NULL, 0, &I2CThreadHandle);
-	
+  xTaskCreate(I2C_1_Slave_Mode,"I2C Slave", configMINIMAL_STACK_SIZE,
+	NULL, 0, &I2CThreadHandle_1);
+	 
+	xTaskCreate(I2C_2_Slave_Mode,"I2C Slave", configMINIMAL_STACK_SIZE,
+	NULL, 0, &I2CThreadHandle_2);
 		//HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000);
 	
   /* Start scheduler */
@@ -239,7 +260,7 @@ int main(void)
 // }
 
 
-void I2C_Slave_Mode(void *argument)
+void I2C_1_Slave_Mode(void *argument)
 {
     
   for(;;)
@@ -249,7 +270,7 @@ void I2C_Slave_Mode(void *argument)
     hRxNumData = 0;
 			
     /*##-2- Slave receive request from master ################################*/
-    while(HAL_I2C_Slave_Receive_IT(&I2CxHandle, (uint8_t*)&bTransferRequest, 1)!= HAL_OK)
+    while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_1, (uint8_t*)&bTransferRequest, 1)!= HAL_OK)
     {
     }
 
@@ -260,7 +281,7 @@ void I2C_Slave_Mode(void *argument)
     For simplicity reasons, this example is just waiting till the end of the
     transfer, but application may perform other tasks while transfer operation
     is ongoing. */
-    while (HAL_I2C_GetState(&I2CxHandle) != HAL_I2C_STATE_READY)
+    while (HAL_I2C_GetState(&I2CxHandle_1) != HAL_I2C_STATE_READY)
     {
     }
 		
@@ -268,7 +289,7 @@ void I2C_Slave_Mode(void *argument)
     if (bTransferRequest == MASTER_REQ_WRITE)
     {
       /*##-3- Slave receive number of data to be read ########################*/
-      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle, (uint8_t*)&hRxNumData, 2)!= HAL_OK);
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_1, (uint8_t*)&hRxNumData, 2)!= HAL_OK);
 
       /*  Before starting a new communication transfer, you need to check the current
       state of the peripheral; if it? busy you need to wait for the end of current
@@ -276,12 +297,12 @@ void I2C_Slave_Mode(void *argument)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-      while (HAL_I2C_GetState(&I2CxHandle) != HAL_I2C_STATE_READY)
+      while (HAL_I2C_GetState(&I2CxHandle_1) != HAL_I2C_STATE_READY)
       {
       }
 
       /*##-4- Slave receives aRxBuffer from master ###########################*/
-      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle, (uint8_t*)aRxBuffer, hRxNumData)!= HAL_OK);
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_1, (uint8_t*)aRxBuffer, hRxNumData)!= HAL_OK);
 
       /*  Before starting a new communication transfer, you need to check the current
       state of the peripheral; if it? busy you need to wait for the end of current
@@ -289,7 +310,7 @@ void I2C_Slave_Mode(void *argument)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-      while (HAL_I2C_GetState(&I2CxHandle) != HAL_I2C_STATE_READY)
+      while (HAL_I2C_GetState(&I2CxHandle_1) != HAL_I2C_STATE_READY)
       {
       }
 
@@ -310,7 +331,7 @@ void I2C_Slave_Mode(void *argument)
     else
     {
       /*##-3- Slave receive number of data to be written #####################*/
-      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle, (uint8_t*)&hTxNumData, 2)!= HAL_OK);
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_1, (uint8_t*)&hTxNumData, 2)!= HAL_OK);
 
       /*  Before starting a new communication transfer, you need to check the current
       state of the peripheral; if it? busy you need to wait for the end of current
@@ -318,12 +339,12 @@ void I2C_Slave_Mode(void *argument)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-      while (HAL_I2C_GetState(&I2CxHandle) != HAL_I2C_STATE_READY)
+      while (HAL_I2C_GetState(&I2CxHandle_1) != HAL_I2C_STATE_READY)
       {
       }
 
       /*##-4- Slave transmit aTxBuffer to master #############################*/
-      while(HAL_I2C_Slave_Transmit_IT(&I2CxHandle, (uint8_t*)aTxBuffer, RXBUFFERSIZE)!= HAL_OK);
+      while(HAL_I2C_Slave_Transmit_IT(&I2CxHandle_1, (uint8_t*)aTxBuffer, RXBUFFERSIZE)!= HAL_OK);
 
       /*  Before starting a new communication transfer, you need to check the current
       state of the peripheral; if it? busy you need to wait for the end of current
@@ -331,14 +352,111 @@ void I2C_Slave_Mode(void *argument)
       For simplicity reasons, this example is just waiting till the end of the
       transfer, but application may perform other tasks while transfer operation
       is ongoing. */
-      while (HAL_I2C_GetState(&I2CxHandle) != HAL_I2C_STATE_READY)
+      while (HAL_I2C_GetState(&I2CxHandle_1) != HAL_I2C_STATE_READY)
       {
       }
     }
 	}
 }
 
+void I2C_2_Slave_Mode(void *argument)
+{
+    
+  for(;;)
+  {
+		/* Initialize number of data variables */
+    hTxNumData = 0;
+    hRxNumData = 0;
+			
+    /*##-2- Slave receive request from master ################################*/
+    while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_2, (uint8_t*)&bTransferRequest, 1)!= HAL_OK)
+    {
+    }
 
+		
+    /*  Before starting a new communication transfer, you need to check the current
+    state of the peripheral; if it? busy you need to wait for the end of current
+    transfer before starting a new one.
+    For simplicity reasons, this example is just waiting till the end of the
+    transfer, but application may perform other tasks while transfer operation
+    is ongoing. */
+    while (HAL_I2C_GetState(&I2CxHandle_2) != HAL_I2C_STATE_READY)
+    {
+    }
+		
+    /* If master request write operation #####################################*/
+    if (bTransferRequest == MASTER_REQ_WRITE)
+    {
+      /*##-3- Slave receive number of data to be read ########################*/
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_2, (uint8_t*)&hRxNumData, 2)!= HAL_OK);
+
+      /*  Before starting a new communication transfer, you need to check the current
+      state of the peripheral; if it? busy you need to wait for the end of current
+      transfer before starting a new one.
+      For simplicity reasons, this example is just waiting till the end of the
+      transfer, but application may perform other tasks while transfer operation
+      is ongoing. */
+      while (HAL_I2C_GetState(&I2CxHandle_2) != HAL_I2C_STATE_READY)
+      {
+      }
+
+      /*##-4- Slave receives aRxBuffer from master ###########################*/
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_2, (uint8_t*)aRxBuffer, hRxNumData)!= HAL_OK);
+
+      /*  Before starting a new communication transfer, you need to check the current
+      state of the peripheral; if it? busy you need to wait for the end of current
+      transfer before starting a new one.
+      For simplicity reasons, this example is just waiting till the end of the
+      transfer, but application may perform other tasks while transfer operation
+      is ongoing. */
+      while (HAL_I2C_GetState(&I2CxHandle_2) != HAL_I2C_STATE_READY)
+      {
+      }
+
+//      /* Check correctness of received buffer ################################*/
+//      if(Buffercmp((uint8_t*)aTxBuffer,(uint8_t*)aRxBuffer,hRxNumData))
+//      {
+//        /* Processing Error */
+//        Error_Handler();
+//      }
+
+      /* Flush Rx buffers */
+      Flush_Buffer((uint8_t*)aRxBuffer,RXBUFFERSIZE);
+
+      /* Toggle LED3 */
+//      BSP_LED_Toggle(LED3);
+    }
+    /* If master request write operation #####################################*/
+    else
+    {
+      /*##-3- Slave receive number of data to be written #####################*/
+      while(HAL_I2C_Slave_Receive_IT(&I2CxHandle_2, (uint8_t*)&hTxNumData, 2)!= HAL_OK);
+
+      /*  Before starting a new communication transfer, you need to check the current
+      state of the peripheral; if it? busy you need to wait for the end of current
+      transfer before starting a new one.
+      For simplicity reasons, this example is just waiting till the end of the
+      transfer, but application may perform other tasks while transfer operation
+      is ongoing. */
+      while (HAL_I2C_GetState(&I2CxHandle_2) != HAL_I2C_STATE_READY)
+      {
+      }
+
+      /*##-4- Slave transmit aTxBuffer to master #############################*/
+      while(HAL_I2C_Slave_Transmit_IT(&I2CxHandle_2, (uint8_t*)aTxBuffer, RXBUFFERSIZE)!= HAL_OK);
+
+      /*  Before starting a new communication transfer, you need to check the current
+      state of the peripheral; if it? busy you need to wait for the end of current
+      transfer before starting a new one.
+      For simplicity reasons, this example is just waiting till the end of the
+      transfer, but application may perform other tasks while transfer operation
+      is ongoing. */
+      while (HAL_I2C_GetState(&I2CxHandle_2) != HAL_I2C_STATE_READY)
+      {
+      }
+    }
+	}
+}
 
 /**
   * @brief  System Clock Configuration

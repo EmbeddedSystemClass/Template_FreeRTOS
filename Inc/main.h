@@ -76,13 +76,13 @@
 #define I2Cx_1_FORCE_RESET()               __HAL_RCC_I2C1_FORCE_RESET()
 #define I2Cx_1_RELEASE_RESET()             __HAL_RCC_I2C1_RELEASE_RESET()
 
-// #define I2Cx_2                             I2C2
-// #define I2Cx_2_CLK_ENABLE()                __HAL_RCC_I2C2_CLK_ENABLE()
-// #define I2Cx_2_SDA_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOF_CLK_ENABLE()
-// #define I2Cx_2_SCL_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOF_CLK_ENABLE()
+ #define I2Cx_2                             I2C2
+ #define I2Cx_2_CLK_ENABLE()                __HAL_RCC_I2C2_CLK_ENABLE()
+ #define I2Cx_2_SDA_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOF_CLK_ENABLE()
+ #define I2Cx_2_SCL_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOF_CLK_ENABLE()
 
-// #define I2Cx_2_FORCE_RESET()               __HAL_RCC_I2C2_FORCE_RESET()
-// #define I2Cx_2_RELEASE_RESET()             __HAL_RCC_I2C2_RELEASE_RESET()
+ #define I2Cx_2_FORCE_RESET()               __HAL_RCC_I2C2_FORCE_RESET()
+ #define I2Cx_2_RELEASE_RESET()             __HAL_RCC_I2C2_RELEASE_RESET()
 
 /* Definition for I2Cx Pins */
 #define I2Cx_1_SCL_PIN                    GPIO_PIN_6
@@ -92,12 +92,12 @@
 #define I2Cx_1_SDA_GPIO_PORT              GPIOB
 #define I2Cx_1_SDA_AF                     GPIO_AF4_I2C1
 
-// #define I2Cx_2_SCL_PIN                    GPIO_PIN_1
-// #define I2Cx_2_SCL_GPIO_PORT              GPIOF
-// #define I2Cx_2_SCL_AF                     GPIO_AF4_I2C2
-// #define I2Cx_2_SDA_PIN                    GPIO_PIN_0
-// #define I2Cx_2_SDA_GPIO_PORT              GPIOF
-// #define I2Cx_2_SDA_AF                     GPIO_AF4_I2C2
+ #define I2Cx_2_SCL_PIN                    GPIO_PIN_1
+ #define I2Cx_2_SCL_GPIO_PORT              GPIOF
+ #define I2Cx_2_SCL_AF                     GPIO_AF4_I2C2
+ #define I2Cx_2_SDA_PIN                    GPIO_PIN_0
+ #define I2Cx_2_SDA_GPIO_PORT              GPIOF
+ #define I2Cx_2_SDA_AF                     GPIO_AF4_I2C2
 
 /* Definition for I2Cx's NVIC */
 #define I2Cx_1_EV_IRQn                    I2C1_EV_IRQn
@@ -105,20 +105,21 @@
 #define I2Cx_1_ER_IRQn                    I2C1_ER_IRQn
 #define I2Cx_1_ER_IRQHandler              I2C1_ER_IRQHandler
 
-// #define I2Cx_2_EV_IRQn                    I2C2_EV_IRQn
-// #define I2Cx_2_EV_IRQHandler              I2C2_EV_IRQHandler
-// #define I2Cx_2_ER_IRQn                    I2C2_ER_IRQn
-// #define I2Cx_2_ER_IRQHandler              I2C2_ER_IRQHandler
+ #define I2Cx_2_EV_IRQn                    I2C2_EV_IRQn
+ #define I2Cx_2_EV_IRQHandler              I2C2_EV_IRQHandler
+ #define I2Cx_2_ER_IRQn                    I2C2_ER_IRQn
+ #define I2Cx_2_ER_IRQHandler              I2C2_ER_IRQHandler
 /* Definition for I2Cx's Interrupt Priority */
 #define I2Cx_1_EV_Priority										11
 #define I2Cx_1_ER_Priority										10
 
-// #define I2Cx_2_EV_Priority										11
-// #define I2Cx_2_ER_Priority										10
+ #define I2Cx_2_EV_Priority										11
+ #define I2Cx_2_ER_Priority										10
 
 /* Definition for I2Cx's ADDRESS */
 #define I2C_1_ADDRESS        0x3E
 
+#define I2C_2_ADDRESS        0x40
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 	
